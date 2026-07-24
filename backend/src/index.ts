@@ -10,6 +10,12 @@ import { configurePassport } from './config/passport';
 import { handleExpressError } from './config/error';
 import mainRouter from './routes';
 
+
+import { postChatStream } from '@/controllers/chat.controller';
+import { BrowserAgent } from '@/browser-agent/BrowserAgent';
+import { Request, Response, NextFunction } from 'express';
+
+
 dotenv.config();
 
 const app = express();
@@ -53,6 +59,14 @@ async function start() {
     configurePassport();
 
     app.use('/', mainRouter);
+
+    app.use('/chat', postChatStream);
+    app.get('/test', async(req: Request, res: Response, next: NextFunction) => {
+        const {invokeBrowserAgent} = await BrowserAgent()
+        const aiResponse = await invokeBrowserAgent("visit https://www.nibirdeka.in and tell me the details")
+        res.json({result:aiResponse});
+    })
+
 
     app.use(handleExpressError);
 
